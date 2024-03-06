@@ -37,7 +37,17 @@ const getMethodById = async (req: Request, res: Response) => {
 
 const postMethod = async (req: Request, res: Response) => {
     const body = req.body;
-    const passwordHashed = bcrypt.hashSync(body.clave, 10);
+    const isExists = await prisma.usuarios.findUnique({
+        where:{
+            correo: body.correo
+        }
+    })
+
+    if(isExists){
+        return res.status(400).json({message: "El correo ya existe"})
+    }
+
+    const passwordHashed = await bcrypt.hashSync(body.clave, 10);
     body.clave = passwordHashed
     try {
         const result = await prisma.usuarios.create({ data: body });
@@ -54,12 +64,12 @@ const putMethod = async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id);
     const body = req.body;
     try {
-        const result = await prisma.usuarios.update({ 
-            where: { 
+        const result = await prisma.usuarios.update({
+            where: {
                 id: id
-             }, 
+            },
             data: body
-         });
+        });
         return res.status(200).json({ data: result, messagge: "Successfully Updated" });
     } catch (error) {
         console.log("error::controller:usuarios:putMethod", error)
@@ -68,15 +78,15 @@ const putMethod = async (req: Request, res: Response) => {
     }
 }
 
-const deleteMethod = async (req: Request, res:Response)=>{
+const deleteMethod = async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id);
     try {
         const result = await prisma.usuarios.delete({
             where: {
-                id:id
+                id: id
             }
         });
-        return res.status(200).json({data: result, messagge: "Successfully Deleted"});
+        return res.status(200).json({ data: result, messagge: "Successfully Deleted" });
     } catch (error) {
         console.log("error::controller:usuarios:deleteMethod", error)
         return res.status(500).json(error);
@@ -84,27 +94,28 @@ const deleteMethod = async (req: Request, res:Response)=>{
     }
 }
 
-const loginUser = async (req: Request, res:Response)=>{
+const loginMethod = async (req: Request, res: Response) => {
     const body = req.body;
     try {
-        const result = await prisma.usuarios.findFirst({where: {correo:body.correo}});
-        if(result){
-            if(!bcrypt.compareSync(body.clave, result.clave)){
-                return res.status(401).json({data: null, message: "Email or password is incorrect"});
+        const user = await prisma.usuarios.findFirst({ where: { correo: body.correo } });
+        if (user) {
+            const isValidPassword = bcrypt.compareSync(body.clave, user.clave)
+            if (!isValidPassword) {
+                return res.status(401).json({ data: null, message: "Email or password is incorrect" });
             }
 
             const payload = {
-                id: result.id,
-                correo: result.correo,
-                nombre: result.nombres,
-                apellido: result.apellidos
+                id: user.id,
+                correo: user.correo,
+                nombre: user.nombres,
+                apellido: user.apellidos
             }
 
-            const token = jwt.sign(payload, SECRET_KEY, {expiresIn: TOKEN_EXPIRES})
-            return res.status(200).json({data: token, message: "Login Successfully"})
+            const token = jwt.sign(payload, SECRET_KEY, { expiresIn: TOKEN_EXPIRES })
+            return res.status(200).json({ jwt: token, message: "Login Successfully" })
         }
-        return res.status(401).json({data: null, message: "The entered email not exists"});
-        
+        return res.status(401).json({ data: null, message: "The entered email not exists" });
+
     } catch (error) {
         return res.status(500).json(error);
     }
@@ -116,5 +127,5 @@ export {
     postMethod,
     putMethod,
     deleteMethod,
-    loginUser
+    loginMethod
 }

@@ -5,18 +5,18 @@ import {
     postMethod,
     putMethod,
     deleteMethod,
-    loginUser
+    loginMethod
 } from '../../controllers/usuarios/usuarios.controller';
-import {verify} from "../../middlewares/auth.middleware";
+
 
 const router = express.Router();
 
 // /api/usuarios
-router.get('/', verify, getMethod);
-router.get('/:id', verify, getMethodById);
+router.get('/', getMethod);
+router.get('/:id', getMethodById);
 router.post('/', postMethod);
-router.put('/:id', verify, putMethod);
-router.delete('/:id', verify, deleteMethod);
-router.post('/login', loginUser);
+router.put('/:id', putMethod);
+router.delete('/:id', deleteMethod);
+router.post('/login', loginMethod);
 
 export default router;
