@@ -1,0 +1,98 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuarios {
+  id                Int       @id @default(autoincrement())
+  nombres           String
+  apellidos         String
+  correo            String    @unique
+  clave             String
+  role              String
+  fechaCreacion     DateTime @default(now())
+
+}
+
+model Clientes {
+  id                Int       @id @default(autoincrement())
+  tipoDocumento     String
+  noDocumento       String
+  edad              Int
+  nombres           String
+  apellidos         String
+  correo            String    @unique
+  telefono          String
+  direccion         String
+  ciudad            String
+  notas             String?
+  fechaCreacion     DateTime @default(now())
+  pedidos           Pedidos []
+
+}
+
+model Productos {
+  id                Int       @id @default(autoincrement())
+  nombre            String
+  precio            Float
+  foto              String    @default("https://via.placeholder.com/300")
+  categoria         Categorias @relation(fields: [categoriaId], references: [id])
+  categoriaId       Int
+  descripcion       String
+  activo            Boolean
+  fechaCreacion     DateTime @default(now())
+  pedidosItems      PedidosItems[]
+
+}
+
+model Categorias {
+  id                Int       @id @default(autoincrement())
+  nombre            String
+  activo            Boolean
+  fechaCreacion     DateTime @default(now())
+  producto          Productos[]
+
+}
+
+model Pedidos {
+  id                Int       @id @default(autoincrement())
+  nota              String
+  direccionEntrega  String
+  referenciaEntrega String
+  subtotal          Float
+  total             Float
+  estado            EstadoPedido
+  fechaCreacion     DateTime @default(now())
+  cliente           Clientes @relation(fields: [clienteId], references: [id])
+  clienteId         Int
+  items             PedidosItems[]
+
+}
+
+model PedidosItems {
+  id                Int       @id @default(autoincrement())
+  cantidad          Int
+  subtotal          Float
+  fechaCreacion     DateTime @default(now())
+  producto          Productos @relation(fields: [productoId], references: [id])
+  productoId        Int
+  pedido            Pedidos @relation(fields: [pedidoId], references: [id])
+  pedidoId          Int
+}
+
+enum EstadoPedido {
+  RECIBIDO
+  ENPROCESO
+  ENTREGADO
+  DEVUELTO
+}
