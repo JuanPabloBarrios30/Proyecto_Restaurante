@@ -17,7 +17,7 @@ const getMethod = async (req: Request, res: Response) => {
 }
 
 const getMethodById = async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id);
+    const {id} = req.params;
     try {
         const cliente = await prisma.pedidos.findUnique({
             where: { id: id },
@@ -49,7 +49,7 @@ const postMethod = async (req: Request, res: Response) => {
 }
 
 const putMethod = async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id);
+    const {id} = req.params;
     const body = req.body;
     try {
         const result = await prisma.pedidos.update({ 
@@ -67,7 +67,7 @@ const putMethod = async (req: Request, res: Response) => {
 }
 
 const deleteMethod = async (req: Request, res:Response)=>{
-    const id: number = parseInt(req.params.id);
+    const {id} = req.params;
     try {
         const result = await prisma.pedidos.delete({
             where: {

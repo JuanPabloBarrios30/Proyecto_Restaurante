@@ -20,8 +20,9 @@ const getMethod = async (req: Request, res: Response) => {
 }
 
 const getMethodById = async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id);
+    
     try {
+        const {id} = req.params;
         const cliente = await prisma.usuarios.findUnique({
             where: { id: id }
         });
@@ -61,7 +62,7 @@ const postMethod = async (req: Request, res: Response) => {
 }
 
 const putMethod = async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id);
+    const {id} = req.params;
     const body = req.body;
     try {
         const result = await prisma.usuarios.update({
@@ -79,7 +80,7 @@ const putMethod = async (req: Request, res: Response) => {
 }
 
 const deleteMethod = async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id);
+    const {id} = req.params;
     try {
         const result = await prisma.usuarios.delete({
             where: {

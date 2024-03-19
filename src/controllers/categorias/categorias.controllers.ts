@@ -17,12 +17,12 @@ const getMethod = async (req: Request, res: Response) => {
 }
 
 const getMethodById = async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id);
+    const {id} = req.params;
     try {
         const categoria = await prisma.categorias.findUnique({
             where: { id: id },
             include: {
-                producto: true
+                productos: true
             }
         });
         res.status(200).json({ data: categoria, messagge: "Successfully Obtained" });
@@ -49,7 +49,7 @@ const postMethod = async (req: Request, res: Response) => {
 }
 
 const putMethod = async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id);
+    const {id} = req.params;
     const body = req.body;
     try {
         const result = await prisma.categorias.update({ 
@@ -67,7 +67,7 @@ const putMethod = async (req: Request, res: Response) => {
 }
 
 const deleteMethod = async (req: Request, res:Response)=>{
-    const id: number = parseInt(req.params.id);
+    const {id} = req.params;
     try {
         const result = await prisma.categorias.delete({
             where: {

@@ -9,15 +9,15 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model Usuarios {
-  id                Int       @id @default(autoincrement())
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
   nombres           String
   apellidos         String
-  correo            String    @unique
+  correo            String @unique
   clave             String
   role              String
   fechaCreacion     DateTime @default(now())
@@ -25,72 +25,68 @@ model Usuarios {
 }
 
 model Clientes {
-  id                Int       @id @default(autoincrement())
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
   tipoDocumento     String
   noDocumento       String
-  edad              Int
+  edad              Int 
   nombres           String
   apellidos         String
-  correo            String    @unique
+  correo            String @unique
   telefono          String
   direccion         String
   ciudad            String
   notas             String?
+  pedidos           Pedidos[]
   fechaCreacion     DateTime @default(now())
-  pedidos           Pedidos []
-
 }
 
-model Productos {
-  id                Int       @id @default(autoincrement())
+model Productos{
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
   nombre            String
   precio            Float
-  foto              String    @default("https://via.placeholder.com/300")
+  foto              String @default("https://via.placeholder.com/300")
   categoria         Categorias @relation(fields: [categoriaId], references: [id])
-  categoriaId       Int
+  categoriaId       String @db.ObjectId
   descripcion       String
   activo            Boolean
-  fechaCreacion     DateTime @default(now())
   pedidosItems      PedidosItems[]
-
+  fechaCreacion     DateTime @default(now())
 }
 
-model Categorias {
-  id                Int       @id @default(autoincrement())
+model Categorias{
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
   nombre            String
   activo            Boolean
+  productos         Productos[]
   fechaCreacion     DateTime @default(now())
-  producto          Productos[]
-
 }
 
-model Pedidos {
-  id                Int       @id @default(autoincrement())
+model Pedidos{
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  cliente           Clientes @relation(fields: [clienteId], references: [id])
+  clienteId         String @db.ObjectId
   nota              String
   direccionEntrega  String
   referenciaEntrega String
   subtotal          Float
   total             Float
   estado            EstadoPedido
-  fechaCreacion     DateTime @default(now())
-  cliente           Clientes @relation(fields: [clienteId], references: [id])
-  clienteId         Int
   items             PedidosItems[]
-
+  fechaCreacion     DateTime @default(now())
 }
 
-model PedidosItems {
-  id                Int       @id @default(autoincrement())
+model PedidosItems{
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  producto          Productos @relation(fields: [productoId], references: [id])
+  productoId        String @db.ObjectId()
+  pedido            Pedidos @relation(fields: [pedidoId], references: [id])
+  pedidoId          String @db.ObjectId()
   cantidad          Int
   subtotal          Float
   fechaCreacion     DateTime @default(now())
-  producto          Productos @relation(fields: [productoId], references: [id])
-  productoId        Int
-  pedido            Pedidos @relation(fields: [pedidoId], references: [id])
-  pedidoId          Int
 }
 
-enum EstadoPedido {
+enum EstadoPedido{
   RECIBIDO
   ENPROCESO
   ENTREGADO
